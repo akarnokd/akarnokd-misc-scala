@@ -1,9 +1,12 @@
+import io.reactivex.Flowable
+import io.reactivex.functions._
 import java.io.File
+import java.lang.Iterable
 import java.util._
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.atomic.AtomicReference
 
-import swave.core._
+import swave.core.{io, _}
 
 import scala.collection.mutable
 import scala.io.Source
@@ -12,6 +15,7 @@ import scala.io.Source
   * Created by akarnokd on 2016.11.18..
   */
 object ScrabbleWithSwave {
+  implicit val env = StreamEnv()
 
   var letterScores = Array(
     // a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p,  q, r, s, t, u, v, w, x, y,  z
@@ -81,7 +85,7 @@ object ScrabbleWithSwave {
 
   def scrabble(double: Boolean) : Any = {
 
-    val scoreOfALetter = (letter: Int) => {
+    val scoreOfALetter = (letter: Char) => {
       letterScores(letter - 'a')
     }
 
@@ -103,17 +107,16 @@ object ScrabbleWithSwave {
         } else {
           map.put(value, current + 1L)
         }
-
+        map
       }).takeLast(1)
     }
 
-    val blank = (entry: mutable.HashEntry[Int, Long]) => {
-      Math.max(0L, entry.next - scrabbleAvailableLetters(entry.key - 'a'))
+    val blank = (entry: Map.Entry[Int, Long]) => {
+      Math.max(0L, entry.getValue() - scrabbleAvailableLetters(entry.getKey() - 'a'))
     }
 
     val nBlanks = (word: String) => {
-      histoOfLetters(word)
-        .flattenConcat()
+        flatten(histoOfLetters(word).map((v) => v.entrySet()))
         .map(blank)
         .reduce((a, b) => a + b)
     }
@@ -121,8 +124,7 @@ object ScrabbleWithSwave {
     val checkBlanks = (word: String) => nBlanks(word).map((v: Long) => v <= 2L)
 
     val score2 = (word: String) => {
-      histoOfLetters(word)
-        .flattenConcat()
+      flatten(histoOfLetters(word).map((v) => v.entrySet()))
         .map(letterScore)
         .reduce((a, b) => a + b)
     }
@@ -131,39 +133,39 @@ object ScrabbleWithSwave {
 
     val last3 = (word: String) => toInteger(word).drop(3)
 
-    val toBeMaxed = (word: String) => Spout(first3, last3).flattenConcat()
+    val toBeMaxed = (word: String) => merge(Spout(first3(word), last3(word)))
 
     val bonusForDoubleLetter = (word: String) =>
-      toBeMaxed.apply(word).map(scoreOfALetter).reduce((a, b) => Math.max(a, b))
+      toBeMaxed(word)
+        .map(scoreOfALetter)
+        .reduce((a, b) => Math.max(a, b))
 
     val score3 = (word: String) => {
       if (double) {
-        Spout(
+        merge(Spout(
           score2(word), score2(word),
           bonusForDoubleLetter(word), bonusForDoubleLetter(word),
-          Spout(word.length).map((v) => {
+          Spout.one(word.length).map((v) => {
             if (v == 7) {
               50
             } else {
               0
             }
           })
-        )
-          .flattenConcat()
+        ))
           .reduce((a, b) => a + b)
       } else {
-        Spout(
+        merge(Spout(
           score2(word).map((v) => v * 2),
           bonusForDoubleLetter(word).map((v) => v * 2),
-          Spout(word.length).map((v) => {
+          Spout.one(word.length).map((v) => {
             if (v == 7) {
               50
             } else {
               0
             }
           })
-        )
-          .flattenConcat()
+        ))
           .reduce((a, b) => a + b)
       }
     }
@@ -173,7 +175,7 @@ object ScrabbleWithSwave {
         override def compare(o1: Int, o2: Int): Int = Integer.compare(o2, o1)
       })
 
-      Spout.fromIterable(shakespeareWords)
+      val o = Spout.fromIterable(shakespeareWords)
         .filter((word) => scrabbleWords.contains(word))
         .filter((word) => first(checkBlanks(word)))
         .map((word) => {
@@ -184,16 +186,17 @@ object ScrabbleWithSwave {
             map.put(key, list)
           }
           list.add(word);
-          return map;
+          map
         })
         .takeLast(1)
+
+      o
     }
 
     val finalList = new ArrayList[Map.Entry[Int, List[String]]]()
 
     first(
-      buildHistoOnScore(score3)
-        .flattenConcat()
+        flatten(buildHistoOnScore(score3).map((v) => v.entrySet()))
         .take(3)
         .map((v) => {
           finalList.add(v)
@@ -203,8 +206,28 @@ object ScrabbleWithSwave {
     )
   }
 
-  def flatten[T](source: Spout[Spout[T]]) : Spout[T] = {
+  def publisher[T](source: Spout[T]) : Flowable[T] = {
+    Flowable.fromPublisher(source.drainTo(Drain.toPublisher()).get)
+  }
 
+  def merge[T](source: Spout[Spout[T]]) : Spout[T] = {
+    val f = publisher(source)
+
+    val m = f.flatMap(new Function[Spout[T], Flowable[T]]() {
+      override def apply(t: Spout[T]): Flowable[T] = publisher(t)
+    })
+
+    Spout.fromPublisher(m)
+  }
+
+  def flatten[T](source: Spout[java.lang.Iterable[T]]) : Spout[T] = {
+    val f = publisher(source)
+
+    val m = f.flatMapIterable(new Function[java.lang.Iterable[T], java.lang.Iterable[T]]() {
+      override def apply(t: Iterable[T]): Iterable[T] = t
+    })
+
+    Spout.fromPublisher(m)
   }
 
   def first[T](source: Spout[T]): T = {
