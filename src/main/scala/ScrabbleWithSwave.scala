@@ -33,7 +33,7 @@ object ScrabbleWithSwave {
 
   def main(args: Array[String]): Unit = {
 
-    val n = 1;
+    val n = 500;
 
     scrabbleWords = new mutable.HashSet[String]();
 
