@@ -38,13 +38,16 @@ object ScrabbleWithSwave {
     scrabbleWords = new mutable.HashSet[String]();
 
     for (line <- Source.fromFile(new File("files/ospd.txt")).getLines()) {
-      scrabbleWords ++ line.toLowerCase()
+      scrabbleWords.add(line.toLowerCase())
     }
 
     shakespeareWords = new mutable.HashSet[String]();
     for (line <- Source.fromFile(new File("files/words.shakespeare.txt")).getLines()) {
-      shakespeareWords ++ line.toLowerCase()
+      shakespeareWords.add(line.toLowerCase())
     }
+
+    System.out.println(scrabbleWords.size)
+    System.out.println(shakespeareWords.size)
 
     System.out.println(scrabble(false));
 
@@ -62,7 +65,7 @@ object ScrabbleWithSwave {
       override def compare(o1: Long, o2: Long): Int = o1.compareTo(o2)
     });
 
-    System.out.print("%,2f ms%n".format(times.get(times.size() / 2) / 1000000.0));
+    System.out.print("%.2f ms%n".format(times.get(times.size() / 2) / 1000000.0));
 
     times.clear()
 
@@ -80,7 +83,9 @@ object ScrabbleWithSwave {
       override def compare(o1: Long, o2: Long): Int = o1.compareTo(o2)
     });
 
-    System.out.print("%,2f ms%n".format(times.get(times.size() / 2) / 1000000.0));
+    System.out.print("%.2f ms%n".format(times.get(times.size() / 2) / 1000000.0));
+
+    env.shutdown()
   }
 
   def scrabble(double: Boolean) : Any = {
@@ -91,17 +96,17 @@ object ScrabbleWithSwave {
 
     val letterScore = (entry: Map.Entry[Int, Long]) => {
       letterScores(entry.getKey() - 'a') *
-      Integer.min(entry.getValue().intValue(), scrabbleAvailableLetters(entry.getKey() - 'a'))
+        Integer.min(entry.getValue().intValue(), scrabbleAvailableLetters(entry.getKey() - 'a'))
     }
 
     val toInteger = (string: String) => {
-      Spout(0 to string.length - 1).map((v: Int) => string.charAt(v))
+      Spout(0 until string.length).map((v: Int) => string.charAt(v))
     }
 
     val histoOfLetters = (word: String) => {
       val map = new HashMap[Int, Long]();
       toInteger(word).map((value: Char) => {
-        val current = map.get(value);
+        val current = map.get(value.toInt);
         if (current == null) {
           map.put(value, 1L)
         } else {
@@ -204,6 +209,8 @@ object ScrabbleWithSwave {
         })
         .takeLast(1)
     )
+
+    finalList
   }
 
   def publisher[T](source: Spout[T]) : Flowable[T] = {
@@ -213,7 +220,7 @@ object ScrabbleWithSwave {
   def merge[T](source: Spout[Spout[T]]) : Spout[T] = {
     val f = publisher(source)
 
-    val m = f.flatMap(new Function[Spout[T], Flowable[T]]() {
+    val m = f.concatMap(new Function[Spout[T], Flowable[T]]() {
       override def apply(t: Spout[T]): Flowable[T] = publisher(t)
     })
 
