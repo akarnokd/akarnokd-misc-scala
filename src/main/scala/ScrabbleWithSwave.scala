@@ -220,7 +220,7 @@ object ScrabbleWithSwave {
   def merge[T](source: Spout[Spout[T]]) : Spout[T] = {
     val f = publisher(source)
 
-    val m = f.concatMap(new Function[Spout[T], Flowable[T]]() {
+    val m = f.flatMap(new Function[Spout[T], Flowable[T]]() {
       override def apply(t: Spout[T]): Flowable[T] = publisher(t)
     })
 
