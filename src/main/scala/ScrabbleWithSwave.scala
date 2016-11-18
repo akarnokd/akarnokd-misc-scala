@@ -176,10 +176,6 @@ object ScrabbleWithSwave {
       })
 
       val o = Spout.fromIterable(shakespeareWords)
-          .map((v) => {
-            System.out.println(v)
-            v
-          })
         .filter((word) => scrabbleWords.contains(word))
         .filter((word) => first(checkBlanks(word)))
         .map((word) => {
