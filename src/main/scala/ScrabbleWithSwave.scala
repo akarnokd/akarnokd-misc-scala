@@ -176,6 +176,10 @@ object ScrabbleWithSwave {
       })
 
       val o = Spout.fromIterable(shakespeareWords)
+          .map((v) => {
+            System.out.println(v)
+            v
+          })
         .filter((word) => scrabbleWords.contains(word))
         .filter((word) => first(checkBlanks(word)))
         .map((word) => {
@@ -231,15 +235,6 @@ object ScrabbleWithSwave {
   }
 
   def first[T](source: Spout[T]): T = {
-    val cdl = new CountDownLatch(1);
-    val value = new AtomicReference[T]();
-
-    source.first.foreach((e) => {
-      value.lazySet(e);
-      cdl.countDown()
-    })
-
-    cdl.await();
-     value.get()
+    publisher(source).blockingFirst()
   }
 }
