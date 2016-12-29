@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="SBT: com.github.akarnokd:rxjava2-extensions:0.14.2:jar">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.ivy2/cache/com.github.akarnokd/rxjava2-extensions/jars/rxjava2-extensions-0.14.2.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.ivy2/cache/com.github.akarnokd/rxjava2-extensions/srcs/rxjava2-extensions-0.14.2-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

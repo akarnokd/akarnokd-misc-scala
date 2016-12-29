@@ -22,9 +22,9 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="SBT: org.typelevel:macro-compat_2.11:1.1.1:jar" level="project" />
+    <orderEntry type="library" name="SBT: io.reactivex.rxjava2:rxjava:2.0.0-DP0-SNAPSHOT:jar" level="project" />
     <orderEntry type="library" name="SBT: io.projectreactor:reactor-core:3.0.4.BUILD-SNAPSHOT:jar" level="project" />
     <orderEntry type="library" name="SBT: com.github.akarnokd:ixjava:1.0.0-RC4:jar" level="project" />
-    <orderEntry type="library" name="SBT: io.reactivex.rxjava2:rxjava:2.0.0-DP0-SNAPSHOT:jar" level="project" />
     <orderEntry type="library" name="SBT: org.jctools:jctools-core:2.0:jar" level="project" />
     <orderEntry type="library" name="SBT: io.swave:swave-core_2.11:0.6.0:jar" level="project" />
     <orderEntry type="library" name="SBT: com.typesafe.scala-logging:scala-logging_2.11:3.5.0:jar" level="project" />
@@ -35,5 +35,6 @@
     <orderEntry type="library" name="SBT: org.scala-lang:scala-reflect:2.11.8:jar" level="project" />
     <orderEntry type="library" name="SBT: org.slf4j:slf4j-api:1.7.21:jar" level="project" />
     <orderEntry type="library" name="SBT: io.reactivex:rxjava:1.2.4:jar" level="project" />
+    <orderEntry type="library" name="SBT: com.github.akarnokd:rxjava2-extensions:0.14.2:jar" level="project" />
   </component>
 </module>
