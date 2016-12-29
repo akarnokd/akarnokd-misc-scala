@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="SBT: io.projectreactor:reactor-core:3.0.4.BUILD-SNAPSHOT:jar">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.ivy2/cache/io.projectreactor/reactor-core/jars/reactor-core-3.0.4.BUILD-SNAPSHOT.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.ivy2/cache/io.projectreactor/reactor-core/srcs/reactor-core-3.0.4.BUILD-SNAPSHOT-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
