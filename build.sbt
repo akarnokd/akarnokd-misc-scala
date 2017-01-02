@@ -25,3 +25,6 @@ libraryDependencies ++= Seq(
 
 libraryDependencies +=
   "com.github.akarnokd" % "rxjava2-extensions" % "0.14.2" exclude("io.reactivex.rxjava2", "rxjava")
+
+libraryDependencies +=
+  "com.typesafe.akka"          %%  "akka-stream"           % "2.4.16"
