@@ -19,7 +19,7 @@ libraryDependencies ++= Seq(
   "io.reactivex" % "rxjava" % "1.2.4",
   //"io.reactivex.rxjava2" % "rxjava" % "2.0.4"
   "io.reactivex.rxjava2" % "rxjava" % "2.0.0-DP0-SNAPSHOT",
-  "com.github.akarnokd" % "ixjava" % "1.0.0-RC4",
+  "com.github.akarnokd" % "ixjava" % "1.0.0-RC5",
   "io.projectreactor" % "reactor-core" % "3.0.4.BUILD-SNAPSHOT"
 )
 
