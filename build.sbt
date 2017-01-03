@@ -20,11 +20,11 @@ libraryDependencies ++= Seq(
   //"io.reactivex.rxjava2" % "rxjava" % "2.0.4"
   "io.reactivex.rxjava2" % "rxjava" % "2.0.0-DP0-SNAPSHOT",
   "com.github.akarnokd" % "ixjava" % "1.0.0-RC5",
-  "io.projectreactor" % "reactor-core" % "3.0.4.BUILD-SNAPSHOT"
+  "io.projectreactor" % "reactor-core" % "3.0.4.BUILD-SNAPSHOT",
+  "com.typesafe.akka"          %%  "akka-stream"           % "2.4.16",
+  "io.monix" %% "monix" % "2.1.2"
 )
 
 libraryDependencies +=
   "com.github.akarnokd" % "rxjava2-extensions" % "0.14.2" exclude("io.reactivex.rxjava2", "rxjava")
 
-libraryDependencies +=
-  "com.typesafe.akka"          %%  "akka-stream"           % "2.4.16"
