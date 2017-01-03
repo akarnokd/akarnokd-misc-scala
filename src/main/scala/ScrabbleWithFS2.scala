@@ -1,18 +1,15 @@
 import java.io.File
 import java.util
-import java.util.concurrent.{CountDownLatch, TimeUnit}
-import java.util.concurrent.atomic.AtomicReference
+import java.util.concurrent.TimeUnit
 import java.util.{ArrayList, Comparator, HashMap, Map}
 
-import io.reactors._
-import io.reactors.Events._
-import io.reactors.protocol.Conversions._
+import fs2._
 
+import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.io.Source
-import scala.collection.JavaConverters._
 
-object ScrabbleWithReactorsIO {
+object ScrabbleWithFS2 {
 
   var letterScores = Array(
     // a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p,  q, r, s, t, u, v, w, x, y,  z
@@ -92,22 +89,23 @@ object ScrabbleWithReactorsIO {
         Integer.min(entry.getValue().intValue(), scrabbleAvailableLetters(entry.getKey() - 'a'))
     }
 
+
     val toInteger = (string: String) => {
-      // (0 until string.length).toEvents
-      chars(string)
+      Stream.range(0, string.length).map((v: Int) => string.charAt(v.toInt))
     }
 
     val histoOfLetters = (word: String) => {
+      val map = new HashMap[Int, Long]();
       toInteger(word)
-          .reducePast(new HashMap[Int, Long]())((map, value) => {
-            val current = map.get(value.toInt);
-            if (current == null) {
-              map.put(value, 1L)
-            } else {
-              map.put(value, current + 1L)
-            }
-            map
-          })
+        .map((value: Char) => {
+          val current = map.get(value.toInt);
+          if (current == null) {
+            map.put(value, 1L)
+          } else {
+            map.put(value, current + 1L)
+          }
+          map
+      }).takeRight(1)
     }
 
     val blank = (entry: Map.Entry[Int, Long]) => {
@@ -115,110 +113,93 @@ object ScrabbleWithReactorsIO {
     }
 
     val nBlanks = (word: String) => {
-      flatMap[HashMap[Int, Long], Map.Entry[Int, Long]](histoOfLetters(word), (v) => v.entrySet())
+      histoOfLetters(word)
+        .flatMap((v) => Stream.emits(v.entrySet().asScala.toSeq))
         .map(blank)
-        .reducePast[Long](0)((a, b) => a + b)
+        .reduce((a, b) => a + b)
     }
 
     val checkBlanks = (word: String) => nBlanks(word).map((v: Long) => v <= 2L)
 
     val score2 = (word: String) => {
-      flatMap[HashMap[Int, Long], Map.Entry[Int, Long]](histoOfLetters(word), (v) => v.entrySet())
+        histoOfLetters(word)
+        .flatMap((v) => Stream.emits(v.entrySet().asScala.toSeq))
         .map(letterScore)
-        .reducePast[Int](0)((a, b) => a + b)
+        .reduce((a, b) => a + b)
     }
 
     val first3 = (word: String) => toInteger(word).take(3)
 
     val last3 = (word: String) => toInteger(word).drop(3)
 
-    val toBeMaxed = (word: String) => first3(word).union(last3(word))
+    val toBeMaxed = (word: String) => first3(word).append(last3(word))
 
     val bonusForDoubleLetter = (word: String) =>
       toBeMaxed(word)
         .map(scoreOfALetter)
-        .reducePast[Int](0)((a, b) => Math.max(a, b))
+        .reduce((a, b) => Math.max(a, b))
 
 
     val score3 = (word: String) => {
-      val e1 : Events[Int] = score2(word)
-      val e2 : Events[Int] = bonusForDoubleLetter(word)
-
-      (if (double) {
-          e1.union(e1).union(e2).union(e2)
+      if (double) {
+          score2(word).append(score2(word))
+          .append(bonusForDoubleLetter(word)).append(bonusForDoubleLetter(word))
+          .append(Stream.emit(if (word.length == 7) {
+                50
+              } else {
+                0
+              }))
+          .reduce((a, b) => a + b)
       } else {
-        e1.union(e2).map((v) => v * 2)
-      }).reducePast[Int](0)((a, b) => a + b)
-        .map((v) => v + (if (word.length == 7) {
-          50
-        } else {
-          0
-        }))
-
+        score2(word).map((v) => v * 2)
+          .append(bonusForDoubleLetter(word).map((v) => v * 2))
+          .append(Stream.emit(if (word.length == 7) {
+            50
+          } else {
+            0
+          }))
+          .reduce((a, b) => a + b)
+      }
     }
 
-    val buildHistoOnScore = (score: (String) => Events[Int]) => {
+    val buildHistoOnScore = (score: (String) => Stream[Nothing, Int]) => {
       val map = new util.TreeMap[Int, util.List[String]](new Comparator[Int]() {
         override def compare(o1: Int, o2: Int): Int = Integer.compare(o2, o1)
       })
 
-      val o = fromIterable(shakespeareWords)
-        .filter((word) => scrabbleWords.contains(word))
-        .filter((word) => first(checkBlanks(word)))
-          .reducePast(map)((map, word) => {
-          val key = first(score(word))
-          var list = map.get(key);
-          if (list == null) {
-            list = new ArrayList[String]();
-            map.put(key, list)
-          }
-          list.add(word);
-          map
-        })
-
+      val o = Stream.emits(shakespeareWords.toSeq)
+              .filter((word) => scrabbleWords.contains(word))
+              // filter((word) => first(checkBlanks(word)))
+              .flatMap(word => checkBlanks(word).filter((b) => b).map(b => word))
+              .map((word) => {
+                val key = first(score(word))
+                var list = map.get(key);
+                if (list == null) {
+                  list = new ArrayList[String]();
+                  map.put(key, list)
+                }
+                list.add(word);
+                map
+              }).takeRight(1)
       o
     }
 
     val finalList = new ArrayList[Map.Entry[Int, util.List[String]]]()
 
     first(
-      flatMap[util.TreeMap[Int, util.List[String]], util.Map.Entry[Int, util.List[String]]](buildHistoOnScore(score3), (v) => v.entrySet())
+      buildHistoOnScore(score3)
+        .flatMap((v) => Stream.emits(v.entrySet().asScala.toSeq))
         .take(3)
-        .reducePast(finalList)((f, v) => {
-          f.add(v)
-          f
-        })
+        .map((v) => {
+          finalList.add(v)
+          finalList
+        }).takeRight(1)
     )
 
     finalList
   }
 
-  def chars(string: String) : Events[Char] = {
-
-    new Events.Emitter[Char]
-  }
-
-  def flatMap[T, R](source: Events[T], mapper: (T) => java.lang.Iterable[R]): Events[R] = {
-    return new Events.Emitter[R]
-  }
-
-  def fromIterable[T](source: Iterable[T]) : Events[T] = {
-    return new Events.Emitter[T]
-  }
-
-  def first[T](source: Events[T]) : T = {
-    val cdl = new CountDownLatch(1)
-    val ref = new AtomicReference[T];
-
-    source.onEvent((t) => {
-      if (ref.get() == null) {
-        ref.lazySet(t)
-        cdl.countDown()
-      }
-    })
-
-    cdl.await()
-
-    return ref.get()
+  def first[T](source: Stream[Nothing, T]) : T = {
+    source.toList{0}
   }
 }
