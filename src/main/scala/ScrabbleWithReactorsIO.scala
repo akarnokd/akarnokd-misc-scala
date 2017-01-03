@@ -6,7 +6,7 @@ import java.util.{ArrayList, Comparator, HashMap, Map}
 
 import io.reactors._
 import io.reactors.Events._
-import io.reactors.protocol.Conversions._
+import io.reactors.protocol._
 
 import scala.collection.mutable
 import scala.io.Source
@@ -194,16 +194,15 @@ object ScrabbleWithReactorsIO {
   }
 
   def chars(string: String) : Events[Char] = {
-
-    new Events.Emitter[Char]
+    (0 until string.length).toEvents.map((i) => string.charAt(i))
   }
 
   def flatMap[T, R](source: Events[T], mapper: (T) => java.lang.Iterable[R]): Events[R] = {
-    return new Events.Emitter[R]
+    source.map((v) => mapper(v).asScala.toEvents).union
   }
 
   def fromIterable[T](source: Iterable[T]) : Events[T] = {
-    return new Events.Emitter[T]
+    source.toEvents
   }
 
   def first[T](source: Events[T]) : T = {
