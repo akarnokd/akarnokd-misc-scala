@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="SBT: org.rapidoid:rapidoid-html:5.1.9:jar">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.ivy2/cache/org.rapidoid/rapidoid-html/jars/rapidoid-html-5.1.9.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.ivy2/cache/org.rapidoid/rapidoid-html/srcs/rapidoid-html-5.1.9-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
