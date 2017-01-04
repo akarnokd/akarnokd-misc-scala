@@ -22,7 +22,7 @@ libraryDependencies ++= Seq(
   "com.github.akarnokd" % "ixjava" % "1.0.0-RC5",
   "io.projectreactor" % "reactor-core" % "3.0.4.BUILD-SNAPSHOT",
   "com.typesafe.akka"          %%  "akka-stream"           % "2.4.16",
-  "io.monix" %% "monix" % "2.1.2",
+  "io.monix" %% "monix" % "2.2.0-M1",
   "io.reactors" %% "reactors" % "0.8"
 )
 
