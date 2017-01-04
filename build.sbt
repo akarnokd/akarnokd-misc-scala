@@ -23,7 +23,8 @@ libraryDependencies ++= Seq(
   "io.projectreactor" % "reactor-core" % "3.0.4.BUILD-SNAPSHOT",
   "com.typesafe.akka"          %%  "akka-stream"           % "2.4.16",
   "io.monix" %% "monix" % "2.2.0-M1",
-  "io.reactors" %% "reactors" % "0.8"
+  "io.reactors" %% "reactors" % "0.8",
+  "co.fs2" %% "fs2-core" % "0.9.2"
 )
 
 libraryDependencies +=
