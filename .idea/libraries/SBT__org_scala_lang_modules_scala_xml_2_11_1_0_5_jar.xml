@@ -4,6 +4,7 @@
       <root url="jar://$USER_HOME$/.ivy2/cache/org.scala-lang.modules/scala-xml_2.11/bundles/scala-xml_2.11-1.0.5.jar!/" />
     </CLASSES>
     <JAVADOC />
+    <LIBRARY_FILE />
     <SOURCES>
       <root url="jar://$USER_HOME$/.ivy2/cache/org.scala-lang.modules/scala-xml_2.11/srcs/scala-xml_2.11-1.0.5-sources.jar!/" />
     </SOURCES>

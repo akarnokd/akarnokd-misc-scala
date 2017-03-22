@@ -4,6 +4,7 @@
       <root url="jar://$USER_HOME$/.ivy2/cache/org.javassist/javassist/bundles/javassist-3.20.0-GA.jar!/" />
     </CLASSES>
     <JAVADOC />
+    <LIBRARY_FILE />
     <SOURCES>
       <root url="jar://$USER_HOME$/.ivy2/cache/org.javassist/javassist/srcs/javassist-3.20.0-GA-sources.jar!/" />
     </SOURCES>

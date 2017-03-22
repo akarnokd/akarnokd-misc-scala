@@ -4,6 +4,7 @@
       <root url="jar://$USER_HOME$/.ivy2/cache/com.fasterxml.jackson.core/jackson-annotations/bundles/jackson-annotations-2.6.0.jar!/" />
     </CLASSES>
     <JAVADOC />
+    <LIBRARY_FILE />
     <SOURCES>
       <root url="jar://$USER_HOME$/.ivy2/cache/com.fasterxml.jackson.core/jackson-annotations/srcs/jackson-annotations-2.6.0-sources.jar!/" />
     </SOURCES>

@@ -78,7 +78,7 @@ object MonteCarloPiRx2FlowableOpt {
       .publish(fanoutAndMerge)
       .scan(State(0, 0), stateWithNext)
       .skip(1)
-      .compose(FlowableTransformers.every(1000000))
+      .compose[State](FlowableTransformers.every(1000000))
       .map[String](logCurrent)
       .take(50)
       .forEach(printout)

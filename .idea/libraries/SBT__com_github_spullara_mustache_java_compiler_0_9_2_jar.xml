@@ -4,6 +4,7 @@
       <root url="jar://$USER_HOME$/.ivy2/cache/com.github.spullara.mustache.java/compiler/jars/compiler-0.9.2.jar!/" />
     </CLASSES>
     <JAVADOC />
+    <LIBRARY_FILE />
     <SOURCES>
       <root url="jar://$USER_HOME$/.ivy2/cache/com.github.spullara.mustache.java/compiler/srcs/compiler-0.9.2-sources.jar!/" />
     </SOURCES>

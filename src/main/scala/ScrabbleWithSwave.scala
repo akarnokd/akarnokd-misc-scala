@@ -161,17 +161,17 @@ object ScrabbleWithSwave {
           .reduce((a, b) => a + b)
       } else {
         merge(Spout(
-          score2(word).map((v) => v * 2),
-          bonusForDoubleLetter(word).map((v) => v * 2),
-          Spout.one(word.length).map((v) => {
-            if (v == 7) {
+          score2(word),
+          bonusForDoubleLetter(word)
+          ))
+          .reduce((a, b) => a + b)
+          .map((v) => {
+            v * 2 + (if (word.length == 7) {
               50
             } else {
               0
-            }
+            })
           })
-        ))
-          .reduce((a, b) => a + b)
       }
     }
 

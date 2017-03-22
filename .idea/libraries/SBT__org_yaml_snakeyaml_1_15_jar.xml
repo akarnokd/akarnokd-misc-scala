@@ -4,6 +4,7 @@
       <root url="jar://$USER_HOME$/.ivy2/cache/org.yaml/snakeyaml/bundles/snakeyaml-1.15.jar!/" />
     </CLASSES>
     <JAVADOC />
+    <LIBRARY_FILE />
     <SOURCES>
       <root url="jar://$USER_HOME$/.ivy2/cache/org.yaml/snakeyaml/srcs/snakeyaml-1.15-sources.jar!/" />
     </SOURCES>
